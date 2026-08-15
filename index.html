@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سیستم بازرسی جهان فولاد</title>
+
+    <!-- ===== PWA ===== -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="theme-color" content="#0a1628">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- ===== فونت ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ===== آیکون‌ها ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- ===== کتابخانه اسکن QR ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js">
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: "Vazirmatn", "Tahoma", "Arial", sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            background-color: #0a1628;
+            background-image:
+                linear-gradient(180deg, rgba(10, 22, 40, 0.88) 0%, rgba(10, 22, 40, 0.75) 50%, rgba(10, 22, 40, 0.92) 100%),
+                url('inspection-background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                repeating-linear-gradient(90deg,
+                    rgba(0, 200, 255, 0.02) 0px,
+                    rgba(0, 200, 255, 0.02) 1px,
+                    transparent 1px,
+                    transparent 50px),
+                repeating-linear-gradient(0deg,
+                    rgba(0, 200, 255, 0.015) 0px,
+                    rgba(0, 200, 255, 0.015) 1px,
+                    transparent 1px,
+                    transparent 30px);
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+        }
+
+        .login-box {
+            background: rgba(10, 22, 50, 0.92);
+            border: 1px solid rgba(0, 180, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px 20px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-box .logo-icon {
+            font-size: 44px;
+            color: #00d4ff;
+        }
+        .login-box h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            margin-top: 4px;
+        }
+        .login-box .sub-text {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 18px;
+        }
+        .login-box label {
+            display: block;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 3px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 14px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: rgba(0, 180, 255, 0.2);
+        }
+        .login-box input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 180, 255, 0.12);
+            border: 1px solid rgba(0, 180, 255, 0.12);
+            border-radius: 10px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-btn:active {
+            transform: scale(0.97);
+        }
+        .login-error {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .main-header {
+            text-align: center;
+            padding: 12px 10px;
+            margin-bottom: 12px;
+            background: rgba(10, 20, 50, 0.8);
+            border: 1px solid rgba(0, 150, 255, 0.06);
+            border-radius: 14px;
+            backdrop-filter: blur(8px);
+        }
+        .main-header::after {
+            content: '';
+            display: block;
+            height: 2px;
+            margin-top: 8px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            opacity: 0.3;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .logo-icon-small {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 180, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #00d4ff;
+        }
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 900;
+            color: #fff;
+        }
+        .header-title h1 .highlight {
+            color: #00d4ff;
+        }
+        .header-title .company-name {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 2px;
+        }
+        .user-info {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .user-info .user-name {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .user-info .user-name i {
+            color: #00d4ff;
+            margin-left: 4px;
+        }
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+        .btn-logout:active {
+            transform: scale(0.95);
+        }
+
+        .selection-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            margin: 6px 0 10px 0;
+            flex-wrap: wrap;
+        }
+        .step-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 3px 8px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.3s;
+        }
+        .step-badge.active {
+            background: rgba(0, 180, 255, 0.08);
+            border-color: rgba(0, 180, 255, 0.12);
+            color: #00d4ff;
+        }
+        .step-badge.done {
+            background: rgba(76, 175, 80, 0.08);
+            border-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        .step-badge .num {
+            background: rgba(255, 255, 255, 0.05);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 700;
+        }
+        .step-arrow {
+            color: rgba(255, 255, 255, 0.04);
+            font-size: 8px;
+        }
+
+        #camera-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 180, 255, 0.08);
+            margin-bottom: 10px;
+            aspect-ratio: 4/3;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #camera-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        #camera-container .scan-overlay {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(0, 180, 255, 0.08);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        #camera-container .scan-overlay::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 55%;
+            height: 55%;
+            border: 2px solid rgba(0, 180, 255, 0.06);
+            border-radius: 8px;
+        }
+        #camera-container .scan-overlay::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(0, 180, 255, 0.1);
+            animation: scanLine 2.5s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 180, 255, 0.03);
+        }
+        @keyframes scanLine {
+            0%,
+            100% {
+                top: 15%;
+            }
+            50% {
+                top: 85%;
+            }
+        }
+
+        .camera-status {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+            margin: 4px 0 8px 0;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            font-family: "Vazirmatn", sans-serif;
+        }
+        .camera-status .success {
+            color: #4caf50;
+        }
+        .camera-status .error {
+            color: #f44336;
+        }
+
+        .manual-test-area {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 4px 0 8px 0;
+        }
+        .manual-test-area .btn-test {
+            background: rgba(0, 180, 255, 0.04);
+            border: 1px solid rgba(0, 180, 255, 0.05);
+            padding: 3px 7px;
+            border-radius: 5px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+        .manual-test-area .btn-test:active {
+            transform: scale(0.95);
+        }
+        .manual-test-area .btn-test.active-test {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .station-display {
+            background: rgba(0, 180, 255, 0.04);
+            border: 1px solid rgba(0, 180, 255, 0.05);
+            border-radius: 8px;
+            padding: 8px 10px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .station-display .label {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        .station-display .value {
+            font-size: 16px;
+            font-weight: 800;
+            color: #00d4ff;
+        }
+        .station-display .value i {
+            margin-left: 6px;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin: 6px 0;
+        }
+        .btn-industrial {
+            padding: 10px 4px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.25);
+            touch-action: manipulation;
+        }
+        .btn-industrial:active {
+            transform: scale(0.95);
+        }
+        .btn-industrial i {
+            font-size: 14px;
+        }
+        .btn-industrial .small-text {
+            font-size: 6px;
+            font-weight: 400;
+            opacity: 0.2;
+        }
+
+        .btn-industrial.unit-elect.active {
+            background: rgba(255, 193, 7, 0.08);
+            border-color: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+        }
+        .btn-industrial.unit-mech.active {
+            background: rgba(76, 175, 80, 0.08);
+            border-color: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+        }
+        .btn-industrial.unit-rolling.active {
+            background: rgba(156, 39, 176, 0.08);
+            border-color: rgba(156, 39, 176, 0.15);
+            color: #9c27b0;
+        }
+        .btn-industrial.unit-furnace.active {
+            background: rgba(244, 67, 54, 0.08);
+            border-color: rgba(244, 67, 54, 0.15);
+            color: #f44336;
+        }
+        .btn-industrial.unit-machining.active {
+            background: rgba(33, 150, 243, 0.08);
+            border-color: rgba(33, 150, 243, 0.15);
+            color: #2196f3;
+        }
+
+        .btn-industrial.daily.active {
+            background: rgba(0, 200, 100, 0.08);
+            border-color: rgba(0, 200, 100, 0.15);
+            color: #4caf50;
+        }
+        .btn-industrial.weekly.active {
+            background: rgba(255, 160, 0, 0.08);
+            border-color: rgba(255, 160, 0, 0.15);
+            color: #ff9800;
+        }
+        .btn-industrial.monthly.active {
+            background: rgba(255, 50, 50, 0.08);
+            border-color: rgba(255, 50, 50, 0.15);
+            color: #f44336;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 180, 255, 0.05);
+            border: 1px solid rgba(0, 180, 255, 0.05);
+            border-radius: 10px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.15);
+            cursor: not-allowed;
+            transition: all 0.3s;
+            margin-top: 6px;
+        }
+        .btn-start.active {
+            color: #fff;
+            cursor: pointer;
+            background: rgba(0, 180, 255, 0.08);
+            border-color: rgba(0, 180, 255, 0.1);
+        }
+        .btn-start.active:active {
+            transform: scale(0.97);
+        }
+        .btn-start i {
+            margin-left: 4px;
+            font-size: 13px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .feature-item {
+            text-align: center;
+            padding: 6px 2px;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        .feature-item i {
+            font-size: 14px;
+            color: #00d4ff;
+            display: block;
+            opacity: 0.4;
+        }
+        .feature-item .label {
+            font-size: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+        }
+        .footer {
+            text-align: center;
+            padding: 6px 0 0 0;
+            color: rgba(255, 255, 255, 0.03);
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        .footer span {
+            color: rgba(255, 255, 255, 0.06);
+        }
+
+        .checklist-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .checklist-header-custom h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .checklist-header-custom h3 i {
+            color: #00d4ff;
+            margin-left: 4px;
+        }
+        .btn-back {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s;
+        }
+        .btn-back:active {
+            transform: scale(0.95);
+        }
+
+        .selection-info {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .selection-info .info-item {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 2px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .selection-info .info-item i {
+            color: #00d4ff;
+            margin-left: 3px;
+        }
+
+        .progress-wrapper {
+            margin: 6px 0 8px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #0070ff);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 3px;
+        }
+        .progress-stats .badge-ok {
+            color: #4caf50;
+            font-weight: 700;
+        }
+        .progress-stats .badge-fail {
+            color: #f44336;
+            font-weight: 700;
+        }
+
+        .accordion {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+        .accordion-title {
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.01);
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s;
+            user-select: none;
+        }
+        .accordion-title:active {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .accordion-title .badge-count {
+            background: rgba(0, 180, 255, 0.06);
+            color: #00d4ff;
+            padding: 0 8px;
+            border-radius: 16px;
+            font-size: 9px;
+        }
+        .accordion-body {
+            padding: 2px 8px 8px 8px;
+            display: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 2px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        .item-text {
+            flex: 2;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.75);
+            min-width: 80px;
+        }
+        .item-id-badge {
+            background: rgba(0, 180, 255, 0.05);
+            color: #00d4ff;
+            padding: 0 5px;
+            border-radius: 10px;
+            font-size: 7px;
+            font-weight: 700;
+            margin-right: 3px;
+            border: 1px solid rgba(0, 180, 255, 0.04);
+        }
+        .item-meta {
+            display: block;
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.15);
+        }
+        .item-actions {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .status-btn {
+            padding: 2px 8px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            background: transparent;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 32px;
+            color: rgba(255, 255, 255, 0.15);
+            touch-action: manipulation;
+        }
+        .status-btn:active {
+            transform: scale(0.95);
+        }
+        .status-btn.ok.active {
+            background: #2e7d32;
+            border-color: #4caf50;
+            color: white;
+        }
+        .status-btn.fail.active {
+            background: #c62828;
+            border-color: #f44336;
+            color: white;
+        }
+
+        .fail-box {
+            background: rgba(255, 152, 0, 0.03);
+            border: 1px solid rgba(255, 152, 0, 0.05);
+            border-radius: 5px;
+            padding: 8px;
+            margin-top: 4px;
+            display: none;
+            width: 100%;
+        }
+        .fail-box label {
+            font-weight: 600;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.3);
+            display: block;
+            margin-top: 2px;
+        }
+        .fail-box label:first-child {
+            margin-top: 0;
+        }
+        .fail-box textarea,
+        .fail-box input[type="text"] {
+            width: 100%;
+            padding: 5px 7px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 4px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.02);
+            color: #fff;
+            margin-top: 2px;
+        }
+        .fail-box textarea:focus,
+        .fail-box input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(0, 180, 255, 0.1);
+        }
+        .fail-box textarea::placeholder,
+        .fail-box input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.08);
+        }
+        .photo-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 3px;
+            flex-wrap: wrap;
+        }
+        .btn-photo {
+            background: rgba(0, 180, 255, 0.05);
+            border: 1px solid rgba(0, 180, 255, 0.06);
+            color: #00d4ff;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+        .btn-photo:active {
+            transform: scale(0.95);
+        }
+        .photo-status {
+            color: #4caf50;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .photo-preview img {
+            width: 100%;
+            max-height: 100px;
+            border-radius: 5px;
+            margin-top: 4px;
+            border: 2px solid #4caf50;
+            object-fit: cover;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 200, 100, 0.05);
+            border: 1px solid rgba(0, 200, 100, 0.05);
+            border-radius: 10px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.15);
+            cursor: not-allowed;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-submit:not(:disabled) {
+            color: #fff;
+            cursor: pointer;
+            background: rgba(0, 200, 100, 0.08);
+            border-color: rgba(0, 200, 100, 0.08);
+        }
+        .btn-submit:not(:disabled):active {
+            transform: scale(0.97);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 16px 0;
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 11px;
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.04);
+            border-top: 2px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 4px auto;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 16, 32, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 180, 255, 0.06);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: "Vazirmatn", sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 6px;
+            }
+            .btn-group {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+            .btn-industrial {
+                font-size: 9px;
+                padding: 6px 3px;
+                border-radius: 6px;
+            }
+            .btn-industrial i {
+                font-size: 11px;
+            }
+            .btn-start {
+                font-size: 12px;
+                padding: 10px;
+            }
+            .login-box {
+                padding: 20px 15px;
+            }
+            .login-box h2 {
+                font-size: 17px;
+            }
+            .header-title h1 {
+                font-size: 15px;
+            }
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 4px;
+            }
+            .feature-item i {
+                font-size: 12px;
+            }
+            .feature-item .label {
+                font-size: 7px;
+            }
+            .manual-test-area .btn-test {
+                font-size: 7px;
+                padding: 2px 5px;
+            }
+            .item-text {
+                font-size: 10px;
+                min-width: 60px;
+            }
+            .status-btn {
+                font-size: 8px;
+                padding: 2px 6px;
+                min-width: 28px;
+            }
+            .btn-submit {
+                font-size: 12px;
+                padding: 10px;
+            }
+            .step-badge {
+                font-size: 7px;
+                padding: 2px 6px;
+            }
+            .step-badge .num {
+                width: 12px;
+                height: 12px;
+                font-size: 6px;
+            }
+            .station-display .value {
+                font-size: 14px;
+            }
+            #camera-container {
+                min-height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div id="loginPage">
+            <div class="login-box">
+                <div class="logo-icon"><i class="fas fa-industry"></i></div>
+                <h2>سیستم بازرسی</h2>
+                <p class="sub-text">جهان فولاد</p>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <label for="username">👤 نام بازرس</label>
+                    <input type="text" id="username" placeholder="نام و نام خانوادگی..." required autofocus>
+                    <label for="password">🔒 رمز عبور</label>
+                    <input type="password" id="password" placeholder="رمز عبور..." required>
+                    <div id="loginError" class="login-error">❌ نام کاربری یا رمز عبور اشتباه است!</div>
+                    <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> ورود</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="appMain" class="hidden">
+            <div class="main-header">
+                <div class="logo-container">
+                    <div class="logo-icon-small"><i class="fas fa-industry"></i></div>
+                    <div class="header-title">
+                        <h1>INSPECTION <span class="highlight">SYSTEM</span></h1>
+                        <div class="company-name"><span>جهان فولاد</span></div>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span class="user-name"><i class="fas fa-user-check"></i> <span id="displayName">---</span></span>
+                    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                </div>
+            </div>
+
+            <div class="selection-steps">
+                <div class="step-badge active" id="stepBadge1"><span class="num">1</span> اسکن QR</div>
+                <span class="step-arrow"><i class="fas fa-chevron-left"></i></span>
+                <div class="step-badge" id="stepBadge2"><span class="num">2</span> واحد</div>
+                <span class="step-arrow"><i class="fas fa-chevron-left"></i></span>
+                <div class="step-badge" id="stepBadge3"><span class="num">3</span> تناوب</div>
+            </div>
+
+            <div id="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="scan-overlay"></div>
+            </div>
+            <div class="camera-status" id="cameraStatus">
+                <i class="fas fa-spinner fa-spin"></i> در حال راه‌اندازی دوربین...
+            </div>
+
+            <div class="manual-test-area">
+                <button class="btn-test" onclick="manualScan('STATION-KUREH')">🔥 کوره</button>
+                <button class="btn-test" onclick="manualScan('STATION-RAFFING')">⚙️ رافینگ</button>
+                <button class="btn-test" onclick="manualScan('STATION-NORD')">🏗️ نورد</button>
+                <button class="btn-test" onclick="manualScan('STATION-BRESH')">✂️ برش</button>
+                <button class="btn-test" onclick="manualScan('STATION-ROLGAN')">🔧 رولگان</button>
+                <button class="btn-test" onclick="manualScan('STATION-BASTR')">🛏️ بستر</button>
+                <button class="btn-test" onclick="manualScan('STATION-BASTEBANDI')">📦 بسته</button>
+                <button class="btn-test" onclick="manualScan('STATION-UTILITY')">🔌 یوتیلیتی</button>
+                <button class="btn-test" onclick="manualScan('STATION-JARASGIL')">🏗️ جرثقیل</button>
+                <button class="btn-test" onclick="manualScan('STATION-TARASHKARI')">🔩 تراش</button>
+                <button class="btn-test" onclick="manualScan('STATION-POSTE_BARQ')">⚡ پست برق</button>
+                <button class="btn-test" onclick="manualScan('STATION-ABRASANI')">💧 آبرسانی</button>
+            </div>
+
+            <div id="stationDisplay" class="station-display hidden">
+                <div class="label">🏭 ایستگاه شناسایی شده</div>
+                <div class="value" id="scannedStation"><i class="fas fa-check-circle"></i> ---</div>
+            </div>
+
+            <div id="stepUnit" class="hidden">
+                <div class="btn-group">
+                    <button class="btn-industrial unit-elect" onclick="selectUnit('برق')"><i class="fas fa-bolt"></i> برق <span class="small-text">Elect</span></button>
+                    <button class="btn-industrial unit-mech" onclick="selectUnit('مکانیک')"><i class="fas fa-tools"></i> مکانیک <span class="small-text">Mech</span></button>
+                    <button class="btn-industrial unit-rolling" onclick="selectUnit('نورد')"><i class="fas fa-rolling"></i> نورد <span class="small-text">Roll</span></button>
+                    <button class="btn-industrial unit-furnace" onclick="selectUnit('کوره')"><i class="fas fa-fire"></i> کوره <span class="small-text">Furn</span></button>
+                    <button class="btn-industrial unit-machining" onclick="selectUnit('تراشکاری')"><i class="fas fa-cut"></i> تراشکاری <span class="small-text">Mach</span></button>
+                </div>
+            </div>
+
+            <div id="stepFrequency" class="hidden">
+                <div class="btn-group">
+                    <button class="btn-industrial daily" onclick="selectFrequency('D')"><i class="fas fa-sun"></i> روزانه <span class="small-text">Daily</span></button>
+                    <button class="btn-industrial weekly" onclick="selectFrequency('W')"><i class="fas fa-calendar-week"></i> هفتگی <span class="small-text">Week</span></button>
+                    <button class="btn-industrial monthly" onclick="selectFrequency('M')"><i class="fas fa-calendar-alt"></i> ماهانه <span class="small-text">Month</span></button>
+                </div>
+            </div>
+
+            <button class="btn-start" id="btnStart" onclick="startInspection()" disabled>
+                <i class="fas fa-lock"></i> ابتدا ایستگاه را اسکن کنید
+            </button>
+
+            <div class="features">
+                <div class="feature-item"><i class="fas fa-bullseye"></i><div class="label">دقت بالا</div></div>
+                <div class="feature-item"><i class="fas fa-shield-alt"></i><div class="label">ایمنی</div></div>
+                <div class="feature-item"><i class="fas fa-chart-line"></i><div class="label">گزارش لحظه‌ای</div></div>
+                <div class="feature-item"><i class="fas fa-clock"></i><div class="label">صرفه‌جویی</div></div>
+            </div>
+            <div class="footer">
+                <span>QUALITY</span><span class="sep">•</span>
+                <span>SAFETY</span><span class="sep">•</span>
+                <span>RELIABILITY</span>
+            </div>
+        </div>
+
+        <div id="pageChecklist" class="hidden">
+            <div class="main-header" style="padding:8px 10px;margin-bottom:8px;">
+                <div class="logo-container" style="gap:4px;">
+                    <div class="logo-icon-small" style="width:28px;height:28px;font-size:13px;"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="header-title">
+                        <h1 style="font-size:14px;">چک‌لیست <span class="highlight">بازرسی</span></h1>
+                        <div class="company-name" id="listTitle" style="font-size:8px;">---</div>
+                    </div>
+                </div>
+                <div class="user-info" style="border-top:none;padding-top:0;">
+                    <span class="user-name" style="font-size:10px;"><i class="fas fa-user-check"></i> <span id="checklistInspector">---</span></span>
+                </div>
+            </div>
+
+            <div class="checklist-header-custom">
+                <div class="selection-info">
+                    <span class="info-item"><i class="fas fa-map-marker-alt"></i> <span id="selStation">---</span></span>
+                    <span class="info-item"><i class="fas fa-tools"></i> <span id="selUnit">---</span></span>
+                    <span class="info-item"><i class="fas fa-calendar-alt"></i> <span id="selFrequency">---</span></span>
+                </div>
+                <button class="btn-back" onclick="backToMain()"><i class="fas fa-arrow-right"></i> بازگشت</button>
+            </div>
+
+            <div class="progress-wrapper">
+                <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+                <div class="progress-stats">
+                    <span>✅ <span class="badge-ok" id="okCount">0</span></span>
+                    <span id="progressText">۰ از ۰</span>
+                    <span>❌ <span class="badge-fail" id="failCount">0</span></span>
+                </div>
+            </div>
+
+            <div id="itemsContainer">
+                <div class="loading"><div class="spinner"></div>در حال بارگذاری آیتم‌ها...</div>
+            </div>
+
+            <button class="btn-submit" id="submitBtn" onclick="submitInspection()" disabled>
+                <i class="fas fa-save"></i> ثبت بازرسی
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================
+        // ===== لینک API گوگل شیت =====
+        // ============================================================
+        var APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyC-mqTPPsMtz_nPZPJa3UTm7uTMIntmWnILXC-3X-zFJACWitxqF1wNIbPqU4emCn6/exec";
+
+        var USERS = {
+            'علی محمدی': '1234',
+            'رضا کریمی': '5678',
+            'سعید نورد': '3333',
+            'کریم تراش': '5555',
+            'حسن کوره': '2222',
+            'محمد برق': '1111',
+            'احمد برق': '4444',
+            'حسین برق': '6666',
+            'ناصر برق': '7777',
+            'مهدی برق': '8888',
+            'مدیر': 'admin'
+        };
+
+        var QR_STATION_MAP = {
+            'STATION-KUREH': 'کوره',
+            'STATION-RAFFING': 'رافینگ',
+            'STATION-NORD': 'نورد',
+            'STATION-BRESH': 'برش محصول',
+            'STATION-ROLGAN': 'رولگان بعد استند ۷',
+            'STATION-BASTR': 'بستر',
+            'STATION-BASTEBANDI': 'بسته بندی',
+            'STATION-UTILITY': 'یوتیلیتی',
+            'STATION-JARASGIL': 'جرثقیل',
+            'STATION-TARASHKARI': 'تراشکاری',
+            'STATION-POSTE_BARQ': 'پست و برق',
+            'STATION-ABRASANI': 'آبرسانی'
+        };
+
+        var CURRENT_USER = '';
+        var SELECTED_STATION = '';
+        var SELECTED_UNIT = '';
+        var SELECTED_FREQ = '';
+        var SELECTED_FREQ_CODE = '';
+        var START_TIME = null;
+        var currentItems = [];
+        var inspectionId = '';
+        var isSubmitting = false;
+        var videoStream = null;
+        var scanInterval = null;
+        var isScanning = false;
+
+        function handleLogin(event) {
+            event.preventDefault();
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value.trim();
+            if (USERS[username] && USERS[username] === password) {
+                CURRENT_USER = username;
+                document.getElementById('displayName').textContent = username;
+                document.getElementById('checklistInspector').textContent = username;
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('appMain').classList.remove('hidden');
+                document.getElementById('loginError').style.display = 'none';
+                startQRScanner();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        }
+
+        function logout() {
+            stopQRScanner();
+            CURRENT_USER = '';
+            document.getElementById('appMain').classList.add('hidden');
+            document.getElementById('pageChecklist').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            resetSelections();
+        }
+
+        function startQRScanner() {
+            if (isScanning) return;
+            isScanning = true;
+
+            var statusEl = document.getElementById('cameraStatus');
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> درخواست دسترسی به دوربین...';
+            statusEl.className = 'camera-status';
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                statusEl.innerHTML = '⚠️ مرورگر شما از دوربین پشتیبانی نمی‌کند. از دکمه‌های تست استفاده کنید.';
+                statusEl.className = 'camera-status error';
+                isScanning = false;
+                return;
+            }
+
+            var constraints = {
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                },
+                audio: false
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    videoStream = stream;
+                    var video = document.getElementById('video');
+                    video.srcObject = stream;
+                    video.play();
+
+                    statusEl.innerHTML = '<i class="fas fa-camera" style="color:#4caf50;"></i> دوربین فعال است. QR را در کادر قرار دهید.';
+                    statusEl.className = 'camera-status success';
+
+                    startQRScanningLoop();
+                })
+                .catch(function(err) {
+                    console.error('Camera error:', err);
+                    var errorMsg = '❌ خطا: ';
+                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                        errorMsg += 'دسترسی به دوربین رد شد. لطفاً مجوز را بدهید.';
+                    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                        errorMsg += 'دوربینی در دستگاه یافت نشد.';
+                    } else if (err.name === 'OverconstrainedError') {
+                        errorMsg += 'دوربین پشتیبان پیدا نشد.';
+                    } else if (err.name === 'NotReadableError') {
+                        errorMsg += 'دوربین در دسترس نیست. لطفاً برنامه‌های دیگر را ببندید.';
+                    } else {
+                        errorMsg += err.message || 'خطای ناشناخته';
+                    }
+                    statusEl.innerHTML = errorMsg;
+                    statusEl.className = 'camera-status error';
+                    isScanning = false;
+
+                    setTimeout(function() {
+                        if (!isScanning) {
+                            startQRScanner();
+                        }
+                    }, 3000);
+                });
+        }
+
+        function startQRScanningLoop() {
+            var video = document.getElementById('video');
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+
+            scanInterval = setInterval(function() {
+                if (!video.videoWidth || !video.videoHeight) return;
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                try {
+                    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+
+                    if (code && code.data) {
+                        var decodedText = code.data;
+                        clearInterval(scanInterval);
+                        scanInterval = null;
+                        stopQRScanner();
+
+                        var stationName = QR_STATION_MAP[decodedText];
+                        if (stationName) {
+                            onStationIdentified(stationName);
+                        } else {
+                            var statusEl = document.getElementById('cameraStatus');
+                            statusEl.innerHTML = '⚠️ کد ناشناخته: ' + decodedText;
+                            statusEl.className = 'camera-status error';
+                            showToast('⚠️ کد QR ناشناخته');
+                            setTimeout(function() {
+                                isScanning = false;
+                                startQRScanner();
+                            }, 2000);
+                        }
+                    }
+                } catch (e) {
+                    // خطاهای jsQR رو نادیده بگیر
+                }
+            }, 100);
+        }
+
+        function stopQRScanner() {
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+            if (videoStream) {
+                videoStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+                videoStream = null;
+            }
+            var video = document.getElementById('video');
+            video.srcObject = null;
+            isScanning = false;
+        }
+
+        function onStationIdentified(stationName) {
+            var statusEl = document.getElementById('cameraStatus');
+            statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#4caf50;"></i> ✅ ایستگاه ' + stationName +
+                ' شناسایی شد!';
+            statusEl.className = 'camera-status success';
+
+            document.getElementById('scannedStation').textContent = stationName;
+            document.getElementById('stationDisplay').classList.remove('hidden');
+
+            SELECTED_STATION = stationName;
+
+            document.getElementById('stepBadge1').classList.add('done');
+            document.getElementById('stepBadge1').classList.remove('active');
+            document.getElementById('stepBadge2').classList.add('active');
+
+            document.getElementById('stepUnit').classList.remove('hidden');
+            setTimeout(function() {
+                document.getElementById('stepUnit').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+
+            updateStartButton();
+            showToast('✅ ایستگاه ' + stationName + ' شناسایی شد!');
+        }
+
+        function manualScan(code) {
+            var stationName = QR_STATION_MAP[code];
+            if (!stationName) {
+                showToast('⚠️ کد نامعتبر: ' + code);
+                return;
+            }
+
+            stopQRScanner();
+
+            document.querySelectorAll('.btn-test').forEach(function(btn) {
+                btn.classList.remove('active-test');
+                if (btn.textContent.includes(stationName)) {
+                    btn.classList.add('active-test');
+                }
+            });
+
+            var statusEl = document.getElementById('cameraStatus');
+            statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#4caf50;"></i> ✅ (تست) ایستگاه ' + stationName +
+                ' انتخاب شد';
+            statusEl.className = 'camera-status success';
+
+            document.getElementById('scannedStation').textContent = stationName;
+            document.getElementById('stationDisplay').classList.remove('hidden');
+
+            SELECTED_STATION = stationName;
+
+            document.getElementById('stepBadge1').classList.add('done');
+            document.getElementById('stepBadge1').classList.remove('active');
+            document.getElementById('stepBadge2').classList.add('active');
+
+            document.getElementById('stepUnit').classList.remove('hidden');
+
+            updateStartButton();
+            showToast('✅ (تست) ایستگاه ' + stationName + ' انتخاب شد!');
+        }
+
+        function resetSelections() {
+            SELECTED_STATION = '';
+            SELECTED_UNIT = '';
+            SELECTED_FREQ = '';
+            SELECTED_FREQ_CODE = '';
+            currentItems = [];
+            document.getElementById('stationDisplay').classList.add('hidden');
+            document.getElementById('stepUnit').classList.add('hidden');
+            document.getElementById('stepFrequency').classList.add('hidden');
+            document.getElementById('stepBadge1').classList.add('active');
+            document.getElementById('stepBadge1').classList.remove('done');
+            document.getElementById('stepBadge2').classList.remove('active', 'done');
+            document.getElementById('stepBadge3').classList.remove('active', 'done');
+            document.querySelectorAll('.btn-industrial').forEach(function(btn) { btn.classList.remove('active'); });
+            document.querySelectorAll('.btn-test').forEach(function(btn) { btn.classList.remove('active-test'); });
+            var startBtn = document.getElementById('btnStart');
+            startBtn.disabled = true;
+            startBtn.classList.remove('active');
+            startBtn.innerHTML = '<i class="fas fa-camera"></i> ابتدا ایستگاه را اسکن کنید';
+        }
+
+        function selectUnit(unit) {
+            SELECTED_UNIT = unit;
+            document.querySelectorAll('.btn-industrial.unit-elect, .btn-industrial.unit-mech, .btn-industrial.unit-rolling, .btn-industrial.unit-furnace, .btn-industrial.unit-machining')
+                .forEach(function(btn) {
+                    btn.classList.remove('active');
+                    if (btn.textContent.trim().includes(unit)) btn.classList.add('active');
+                });
+            document.getElementById('stepFrequency').classList.remove('hidden');
+            document.getElementById('stepUnit').style.display = 'none';
+            document.getElementById('stepBadge2').classList.add('done');
+            document.getElementById('stepBadge2').classList.remove('active');
+            document.getElementById('stepBadge3').classList.add('active');
+            setTimeout(function() {
+                document.getElementById('stepFrequency').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 200);
+            updateStartButton();
+        }
+
+        function selectFrequency(freq) {
+            var freqMap = { 'D': 'روزانه', 'W': 'هفتگی', 'M': 'ماهانه' };
+            SELECTED_FREQ = freqMap[freq] || 'روزانه';
+            SELECTED_FREQ_CODE = freq;
+            document.querySelectorAll('.btn-industrial.daily, .btn-industrial.weekly, .btn-industrial.monthly')
+                .forEach(function(btn) {
+                    btn.classList.remove('active');
+                    if (btn.textContent.trim().includes(SELECTED_FREQ)) btn.classList.add('active');
+                });
+            document.getElementById('stepFrequency').style.display = 'none';
+            document.getElementById('stepBadge3').classList.add('done');
+            document.getElementById('stepBadge3').classList.remove('active');
+            setTimeout(function() {
+                document.getElementById('btnStart').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 200);
+            updateStartButton();
+        }
+
+        function updateStartButton() {
+            var btn = document.getElementById('btnStart');
+            if (SELECTED_STATION && SELECTED_UNIT && SELECTED_FREQ) {
+                btn.disabled = false;
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fas fa-play"></i> شروع بازرسی';
+            } else if (!SELECTED_STATION) {
+                btn.disabled = true;
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fas fa-camera"></i> ابتدا ایستگاه را اسکن کنید';
+            } else {
+                btn.disabled = true;
+                btn.classList.remove('active');
+                var parts = [];
+                if (!SELECTED_UNIT) parts.push('واحد');
+                if (!SELECTED_FREQ) parts.push('تناوب');
+                btn.innerHTML = '<i class="fas fa-lock"></i> انتخاب ' + parts.join(' و ') + ' الزامی است';
+            }
+        }
+
+        function getPersianDateOnly() {
+            return new Date().toLocaleDateString('fa-IR');
+        }
+
+        function getPersianTimeOnly() {
+            return new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getDuration() {
+            if (!START_TIME) return '0 دقیقه';
+            var diffMs = new Date() - START_TIME;
+            var diffMinutes = Math.floor(diffMs / 60000);
+            if (diffMinutes < 1) return 'کمتر از ۱ دقیقه';
+            return diffMinutes + ' دقیقه';
+        }
+
+        function startInspection() {
+            if (!SELECTED_STATION || !SELECTED_UNIT || !SELECTED_FREQ) {
+                showToast('⚠️ لطفاً همه موارد را انتخاب کنید.');
+                return;
+            }
+            if (!CURRENT_USER) {
+                showToast('⚠️ لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            START_TIME = new Date();
+            document.getElementById('appMain').classList.add('hidden');
+            document.getElementById('pageChecklist').classList.remove('hidden');
+            document.getElementById('selStation').textContent = SELECTED_STATION;
+            document.getElementById('selUnit').textContent = SELECTED_UNIT;
+            document.getElementById('selFrequency').textContent = SELECTED_FREQ;
+            document.getElementById('listTitle').textContent = SELECTED_FREQ + ' — ' + SELECTED_STATION + ' ' +
+                SELECTED_UNIT;
+            document.getElementById('checklistInspector').textContent = CURRENT_USER;
+            loadChecklist(SELECTED_FREQ_CODE);
+        }
+
+        function backToMain() {
+            document.getElementById('pageChecklist').classList.add('hidden');
+            document.getElementById('appMain').classList.remove('hidden');
+            resetSelections();
+            currentItems = [];
+            isSubmitting = false;
+            START_TIME = null;
+            var submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> ثبت بازرسی';
+            submitBtn.disabled = true;
+            setTimeout(function() {
+                startQRScanner();
+            }, 500);
+        }
+
+        function loadChecklist(freq) {
+            var now = new Date();
+            var ts = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2,
+                    '0') + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+            inspectionId = 'INS-' + ts;
+            document.getElementById('itemsContainer').innerHTML =
+                '<div class="loading"><div class="spinner"></div>در حال بارگذاری آیتم‌ها...</div>';
+            var url = APP_SCRIPT_URL + '?action=getItems&station=' + encodeURIComponent(SELECTED_STATION) + '&unit=' +
+                encodeURIComponent(SELECTED_UNIT) + '&frequency=' + freq;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var items = JSON.parse(xhr.responseText);
+                            if (!items || items.length === 0) {
+                                document.getElementById('itemsContainer').innerHTML =
+                                    '<div class="loading" style="color:rgba(255,255,255,0.3);">⚠️ هیچ آیتمی برای این چک‌لیست یافت نشد.</div>';
+                                return;
+                            }
+                            currentItems = items.map(function(item, index) {
+                                return {
+                                    id: index,
+                                    itemId: item.itemId || '',
+                                    station: item.station || '',
+                                    mechanism: item.mechanism || '',
+                                    system: item.system || '',
+                                    controlItem: item.controlItem || '',
+                                    skillLevel: item.skillLevel || '',
+                                    unit: item.unit || '',
+                                    frequency: item.frequency || '',
+                                    status: null,
+                                    failDesc: '',
+                                    failAction: '',
+                                    photoBase64: null
+                                };
+                            });
+                            renderChecklist();
+                            updateProgress();
+                        } catch (e) {
+                            document.getElementById('itemsContainer').innerHTML =
+                                '<div class="loading" style="color:#f44336;">❌ خطا در پردازش داده‌ها</div>';
+                        }
+                    } else {
+                        document.getElementById('itemsContainer').innerHTML =
+                            '<div class="loading" style="color:#ff9800;">⚠️ خطا در دریافت اطلاعات<br><button onclick="loadChecklist(\'' +
+                            freq +
+                            '\')" style="margin-top:8px;padding:6px 16px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.1);border-radius:6px;color:#00d4ff;font-family:Vazirmatn;font-size:11px;cursor:pointer;">🔄 تلاش مجدد</button></div>';
+                    }
+                }
+            };
+            xhr.onerror = function() {
+                document.getElementById('itemsContainer').innerHTML =
+                    '<div class="loading" style="color:#f44336;">❌ خطا در ارتباط با سرور.<br><button onclick="loadChecklist(\'' +
+                    freq +
+                    '\')" style="margin-top:8px;padding:6px 16px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.1);border-radius:6px;color:#00d4ff;font-family:Vazirmatn;font-size:11px;cursor:pointer;">🔄 تلاش مجدد</button></div>';
+            };
+            xhr.send();
+        }
+
+        function renderChecklist() {
+            var container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            var groups = {};
+            currentItems.forEach(function(item) {
+                var key = item.system || 'سایر';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(item);
+            });
+            var sortedKeys = Object.keys(groups).sort();
+            sortedKeys.forEach(function(systemName) {
+                var items = groups[systemName];
+                var accordion = document.createElement('div');
+                accordion.className = 'accordion';
+                var title = document.createElement('div');
+                title.className = 'accordion-title';
+                var totalItems = items.length;
+                var doneItems = items.filter(function(i) { return i.status !== null; }).length;
+                title.innerHTML = '<span><i class="fas fa-cogs" style="color:#00d4ff;margin-left:4px;"></i>' +
+                    systemName + '</span><span class="badge-count">' + doneItems + '/' + totalItems + '</span>';
+                title.onclick = function(e) {
+                    if (e.target.closest('.status-btn') || e.target.closest('textarea') || e.target.closest(
+                            'input') || e.target.closest('.btn-photo')) return;
+                    var body = this.nextElementSibling;
+                    body.style.display = body.style.display === 'block' ? 'none' : 'block';
+                };
+                var body = document.createElement('div');
+                body.className = 'accordion-body';
+                items.forEach(function(item) {
+                    var row = document.createElement('div');
+                    row.className = 'item-row';
+                    row.id = 'row-' + item.id;
+                    var textDiv = document.createElement('div');
+                    textDiv.className = 'item-text';
+                    textDiv.innerHTML = '<span>' + item.controlItem + '</span><span class="item-id-badge">' +
+                        item.itemId + '</span><span class="item-meta">' + item.mechanism + ' | ' + item
+                        .skillLevel + '</span>';
+                    var actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'item-actions';
+                    var btnOk = document.createElement('button');
+                    btnOk.className = 'status-btn ok';
+                    btnOk.innerHTML = '✅ OK';
+                    btnOk.onclick = function(e) {
+                        e.stopPropagation();
+                        setStatus(item.id, 'OK');
+                    };
+                    var btnFail = document.createElement('button');
+                    btnFail.className = 'status-btn fail';
+                    btnFail.innerHTML = '❌ FAIL';
+                    btnFail.onclick = function(e) {
+                        e.stopPropagation();
+                        setStatus(item.id, 'FAIL');
+                    };
+                    actionsDiv.appendChild(btnOk);
+                    actionsDiv.appendChild(btnFail);
+                    var failBox = document.createElement('div');
+                    failBox.className = 'fail-box';
+                    failBox.id = 'fail-box-' + item.id;
+                    failBox.innerHTML =
+                        '<label><i class="fas fa-exclamation-triangle" style="color:#ff9800;"></i> توضیح عدم انطباق:</label><textarea id="fail-desc-' +
+                        item.id + '" placeholder="مشکل را توضیح دهید..." rows="2"></textarea><label><i class="fas fa-wrench"></i> اقدام انجام شده:</label><input type="text" id="fail-action-' +
+                        item.id +
+                        '" placeholder="اقدام انجام شده را وارد کنید..."><div class="photo-row"><button class="btn-photo" onclick="capturePhoto(' +
+                        item.id +
+                        ')"><i class="fas fa-camera"></i> ثبت عکس</button><span class="photo-status" id="photo-status-' +
+                        item.id + '"></span></div><div class="photo-preview" id="photo-preview-' + item.id +
+                        '"></div>';
+                    var rowWrapper = document.createElement('div');
+                    rowWrapper.style.width = '100%';
+                    rowWrapper.appendChild(textDiv);
+                    rowWrapper.appendChild(actionsDiv);
+                    rowWrapper.appendChild(failBox);
+                    row.appendChild(rowWrapper);
+                    body.appendChild(row);
+                });
+                accordion.appendChild(title);
+                accordion.appendChild(body);
+                container.appendChild(accordion);
+                if (sortedKeys.indexOf(systemName) === 0) {
+                    body.style.display = 'block';
+                }
+            });
+            updateProgress();
+        }
+
+        function setStatus(itemId, status) {
+            var item = currentItems.find(function(i) { return i.id === itemId; });
+            if (!item) return;
+            item.status = status;
+            var row = document.getElementById('row-' + itemId);
+            if (!row) return;
+            var okBtn = row.querySelector('.status-btn.ok');
+            var failBtn = row.querySelector('.status-btn.fail');
+            var failBox = document.getElementById('fail-box-' + itemId);
+            okBtn.classList.remove('active');
+            failBtn.classList.remove('active');
+            if (status === 'OK') {
+                okBtn.classList.add('active');
+                failBox.style.display = 'none';
+                document.getElementById('fail-desc-' + itemId).value = '';
+                document.getElementById('fail-action-' + itemId).value = '';
+                document.getElementById('photo-status-' + itemId).textContent = '';
+                document.getElementById('photo-preview-' + itemId).innerHTML = '';
+                item.failDesc = '';
+                item.failAction = '';
+                item.photoBase64 = null;
+            } else {
+                failBtn.classList.add('active');
+                failBox.style.display = 'block';
+            }
+            updateProgress();
+            updateGroupBadges();
+        }
+
+        function capturePhoto(itemId) {
+            var item = currentItems.find(function(i) { return i.id === itemId; });
+            if (!item) return;
+
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+
+            input.onchange = function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    showToast('⚠️ لطفاً یک فایل عکس انتخاب کنید.');
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var photoData = event.target.result;
+                    item.photoBase64 = photoData;
+
+                    document.getElementById('photo-status-' + itemId).textContent = '✅ عکس ثبت شد';
+                    document.getElementById('photo-status-' + itemId).style.color = '#4caf50';
+
+                    var preview = document.getElementById('photo-preview-' + itemId);
+                    preview.innerHTML = '';
+                    var img = document.createElement('img');
+                    img.src = photoData;
+                    preview.appendChild(img);
+
+                    showToast('✅ عکس با موفقیت ثبت شد');
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function updateProgress() {
+            var total = currentItems.length;
+            var done = currentItems.filter(function(i) { return i.status !== null; }).length;
+            var ok = currentItems.filter(function(i) { return i.status === 'OK'; }).length;
+            var fail = currentItems.filter(function(i) { return i.status === 'FAIL'; }).length;
+            var percent = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = done + ' از ' + total;
+            document.getElementById('okCount').textContent = ok;
+            document.getElementById('failCount').textContent = fail;
+            var submitBtn = document.getElementById('submitBtn');
+            if (done === total && total > 0) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        function updateGroupBadges() {
+            document.querySelectorAll('.accordion').forEach(function(accordion) {
+                var title = accordion.querySelector('.accordion-title');
+                var body = accordion.querySelector('.accordion-body');
+                if (!title || !body) return;
+                var items = body.querySelectorAll('.item-row');
+                var done = 0;
+                items.forEach(function(row) {
+                    if (row.querySelector('.status-btn.ok.active')) done++;
+                    if (row.querySelector('.status-btn.fail.active')) done++;
+                });
+                var badge = title.querySelector('.badge-count');
+                if (badge) {
+                    badge.textContent = done + '/' + items.length;
+                }
+            });
+        }
+
+        function submitInspection() {
+            if (isSubmitting) return;
+            var total = currentItems.length;
+            var done = currentItems.filter(function(i) { return i.status !== null; }).length;
+            if (done < total) {
+                showToast('⚠️ هنوز ' + (total - done) + ' آیتم بررسی نشده است!');
+                return;
+            }
+            var results = [];
+            var hasFail = false;
+            currentItems.forEach(function(item) {
+                if (item.status === 'FAIL') hasFail = true;
+                results.push({
+                    itemId: item.itemId,
+                    status: item.status,
+                    failDesc: document.getElementById('fail-desc-' + item.id)?.value || '',
+                    failAction: document.getElementById('fail-action-' + item.id)?.value || '',
+                    photoBase64: item.photoBase64 || null
+                });
+            });
+            if (hasFail && !confirm('⚠️ موارد FAIL وجود دارد. آیا از ثبت بازرسی اطمینان دارید؟')) {
+                return;
+            }
+
+            isSubmitting = true;
+            var submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ثبت...';
+            submitBtn.disabled = true;
+
+            var duration = getDuration();
+            var payload = {
+                inspectionId: inspectionId,
+                date: getPersianDateOnly(),
+                time: getPersianTimeOnly(),
+                inspector: CURRENT_USER || 'بازرس',
+                station: SELECTED_STATION,
+                unit: SELECTED_UNIT,
+                frequency: SELECTED_FREQ,
+                duration: duration,
+                results: results
+            };
+
+            fetch(APP_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(function() {
+                    showToast('✅ بازرسی با موفقیت ثبت شد!');
+                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> ثبت شد';
+                    submitBtn.style.background = 'rgba(76,175,80,0.1)';
+                    submitBtn.style.borderColor = '#4caf50';
+                    submitBtn.style.color = '#4caf50';
+                    setTimeout(function() {
+                        backToMain();
+                        isSubmitting = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save"></i> ثبت بازرسی';
+                        submitBtn.style.background = '';
+                        submitBtn.style.borderColor = '';
+                        submitBtn.style.color = '';
+                    }, 2000);
+                })
+                .catch(function(error) {
+                    console.error('خطا:', error);
+                    showToast('❌ خطا در ارتباط با سرور: ' + error.message);
+                    isSubmitting = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> ثبت بازرسی';
+                    submitBtn.disabled = false;
+                });
+        }
+
+        function showToast(message) {
+            var toast = document.getElementById('toast');
+            toast.innerHTML = message;
+            toast.classList.add('show');
+            toast.style.opacity = '1';
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(function() {
+                toast.classList.remove('show');
+                toast.style.opacity = '0';
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('password').focus();
+                }
+            });
+            document.getElementById('password').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                }
+            });
+            resetSelections();
+        });
+    </script>
+
+</body>
+</html>
